@@ -29,6 +29,7 @@ import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.FrameLayout;
 
 import java.lang.annotation.Retention;
@@ -95,13 +96,17 @@ public class CameraView extends FrameLayout {
             return;
         }
         // Internal setup
+        /*TODO: Determine where this preview is coming from. Do we need it?*/
         final PreviewImpl preview = createPreviewImpl(context);
         mCallbacks = new CallbackBridge();
         if (Build.VERSION.SDK_INT < 21) {
             mImpl = new Camera1(mCallbacks, preview);
         } else if (Build.VERSION.SDK_INT < 23) {
+            Log.d("TAG", "SDK 23");
+            //TODO: Determine if this is for the view, camera2 OR BOTH
             mImpl = new Camera2(mCallbacks, preview, context);
         } else {
+            Log.d("TAG", "CAMERA2API23");
             mImpl = new Camera2Api23(mCallbacks, preview, context);
         }
         // Attributes

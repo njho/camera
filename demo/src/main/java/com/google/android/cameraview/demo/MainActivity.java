@@ -19,6 +19,7 @@ package com.google.android.cameraview.demo;
 import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -111,6 +112,10 @@ public class MainActivity extends AppCompatActivity implements
         if (mCameraView != null) {
             mCameraView.addCallback(mCallback);
         }
+
+        Intent i = ExampleService.newIntent(this);
+        this.startService(i);
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.take_picture);
         if (fab != null) {
             fab.setOnClickListener(mOnClickListener);

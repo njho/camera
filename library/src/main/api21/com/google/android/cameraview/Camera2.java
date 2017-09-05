@@ -101,17 +101,22 @@ class Camera2 extends CameraViewImpl {
             if (mCamera == null) {
                 return;
             }
+
+            //Initialize CaptureSession
             mCaptureSession = session;
             updateAutoFocus();
             updateFlash();
-            try {
+
+            //TODO: This was what was causing the issue with infinite repeating.
+/*            try {
+                //This has to be for creating the preview
                 mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(),
                         mCaptureCallback, null);
             } catch (CameraAccessException e) {
                 Log.e(TAG, "Failed to start camera preview because it couldn't access camera", e);
             } catch (IllegalStateException e) {
                 Log.e(TAG, "Failed to start camera preview.", e);
-            }
+            }*/
         }
 
         @Override
@@ -316,6 +321,8 @@ class Camera2 extends CameraViewImpl {
         mFlash = flash;
         if (mPreviewRequestBuilder != null) {
             updateFlash();
+
+            //TODO: THIS SETREPEATINGREQUEST DESTROYS TOO
             if (mCaptureSession != null) {
                 try {
                     mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(),
@@ -478,10 +485,13 @@ class Camera2 extends CameraViewImpl {
         mPreview.setBufferSize(previewSize.getWidth(), previewSize.getHeight());
         Surface surface = mPreview.getSurface();
         try {
-            mPreviewRequestBuilder = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-            mPreviewRequestBuilder.addTarget(surface);
+            mPreviewRequestBuilder = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            mPreviewRequestBuilder.addTarget(mImageReader.getSurface());
+
+            /*TODO: MOST LIKELY NEED TO UPDATE SESSIONCALLBACKS HERE*/
             mCamera.createCaptureSession(Arrays.asList(surface, mImageReader.getSurface()),
                     mSessionCallback, null);
+
         } catch (CameraAccessException e) {
             throw new RuntimeException("Failed to start camera session");
         }
@@ -640,8 +650,8 @@ class Camera2 extends CameraViewImpl {
                     new CameraCaptureSession.CaptureCallback() {
                         @Override
                         public void onCaptureCompleted(@NonNull CameraCaptureSession session,
-                                @NonNull CaptureRequest request,
-                                @NonNull TotalCaptureResult result) {
+                                                       @NonNull CaptureRequest request,
+                                                       @NonNull TotalCaptureResult result) {
                             unlockFocus();
                         }
                     }, null);
@@ -695,13 +705,13 @@ class Camera2 extends CameraViewImpl {
 
         @Override
         public void onCaptureProgressed(@NonNull CameraCaptureSession session,
-                @NonNull CaptureRequest request, @NonNull CaptureResult partialResult) {
+                                        @NonNull CaptureRequest request, @NonNull CaptureResult partialResult) {
             process(partialResult);
         }
 
         @Override
         public void onCaptureCompleted(@NonNull CameraCaptureSession session,
-                @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+                                       @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
             process(result);
         }
 
