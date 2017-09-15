@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
 
 package com.google.android.cameraview;
 
@@ -270,9 +271,11 @@ class Camera1 extends CameraViewImpl {
         }
     }
 
-    /**
+    */
+/**
      * This rewrites {@link #mCameraId} and {@link #mCameraInfo}.
-     */
+     *//*
+
     private void chooseCamera() {
         for (int i = 0, count = Camera.getNumberOfCameras(); i < count; i++) {
             Camera.getCameraInfo(i, mCameraInfo);
@@ -380,7 +383,8 @@ class Camera1 extends CameraViewImpl {
         }
     }
 
-    /**
+    */
+/**
      * Calculate display orientation
      * https://developer.android.com/reference/android/hardware/Camera.html#setDisplayOrientation(int)
      *
@@ -390,7 +394,8 @@ class Camera1 extends CameraViewImpl {
      *
      * @param screenOrientationDegrees Screen orientation in degrees
      * @return Number of degrees required to rotate preview
-     */
+     *//*
+
     private int calcDisplayOrientation(int screenOrientationDegrees) {
         if (mCameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             return (360 - (mCameraInfo.orientation + screenOrientationDegrees) % 360) % 360;
@@ -399,7 +404,8 @@ class Camera1 extends CameraViewImpl {
         }
     }
 
-    /**
+    */
+/**
      * Calculate camera rotation
      *
      * This calculation is applied to the output JPEG either via Exif Orientation tag
@@ -409,7 +415,8 @@ class Camera1 extends CameraViewImpl {
      *
      * @param screenOrientationDegrees Screen orientation in degrees
      * @return Number of degrees to rotate image in order for it to view correctly.
-     */
+     *//*
+
     private int calcCameraRotation(int screenOrientationDegrees) {
         if (mCameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             return (mCameraInfo.orientation + screenOrientationDegrees) % 360;
@@ -419,20 +426,24 @@ class Camera1 extends CameraViewImpl {
         }
     }
 
-    /**
+    */
+/**
      * Test if the supplied orientation is in landscape.
      *
      * @param orientationDegrees Orientation in degrees (0,90,180,270)
      * @return True if in landscape, false if portrait
-     */
+     *//*
+
     private boolean isLandscape(int orientationDegrees) {
         return (orientationDegrees == Constants.LANDSCAPE_90 ||
                 orientationDegrees == Constants.LANDSCAPE_270);
     }
 
-    /**
+    */
+/**
      * @return {@code true} if {@link #mCameraParameters} was modified.
-     */
+     *//*
+
     private boolean setAutoFocusInternal(boolean autoFocus) {
         mAutoFocus = autoFocus;
         if (isCameraOpened()) {
@@ -452,9 +463,11 @@ class Camera1 extends CameraViewImpl {
         }
     }
 
-    /**
+    */
+/**
      * @return {@code true} if {@link #mCameraParameters} was modified.
-     */
+     *//*
+
     private boolean setFlashInternal(int flash) {
         if (isCameraOpened()) {
             List<String> modes = mCameraParameters.getSupportedFlashModes();
@@ -478,3 +491,4 @@ class Camera1 extends CameraViewImpl {
     }
 
 }
+*/

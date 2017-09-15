@@ -24,16 +24,16 @@ abstract class CameraViewImpl {
 
     protected final Callback mCallback;
 
-    protected final PreviewImpl mPreview;
+    /*protected final PreviewImpl mPreview;*/
 
-    CameraViewImpl(Callback callback, PreviewImpl preview) {
+    CameraViewImpl(Callback callback/*, PreviewImpl preview*/) {
         mCallback = callback;
-        mPreview = preview;
+        /*mPreview = preview;*/
     }
 
-    View getView() {
+    /*View getView() {
         return mPreview.getView();
-    }
+    }*/
 
     /**
      * @return {@code true} if the implementation was able to start the camera session.

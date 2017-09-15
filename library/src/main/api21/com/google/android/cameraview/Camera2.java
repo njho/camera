@@ -19,6 +19,7 @@ package com.google.android.cameraview;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -70,6 +71,7 @@ class Camera2 extends CameraViewImpl {
 
         @Override
         public void onOpened(@NonNull CameraDevice camera) {
+            Log.d("Camera2", "CameraDevice.StateCallback onOpened");
             mCamera = camera;
             mCallback.onCameraOpened();
             startCaptureSession();
@@ -101,14 +103,16 @@ class Camera2 extends CameraViewImpl {
             if (mCamera == null) {
                 return;
             }
-
             //Initialize CaptureSession
             mCaptureSession = session;
+
+            Log.d("Camera2", "updateAutoFocus() from onConfigured");
+
             updateAutoFocus();
             updateFlash();
 
             //TODO: This was what was causing the issue with infinite repeating.
-/*            try {
+            try {
                 //This has to be for creating the preview
                 mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(),
                         mCaptureCallback, null);
@@ -116,7 +120,7 @@ class Camera2 extends CameraViewImpl {
                 Log.e(TAG, "Failed to start camera preview because it couldn't access camera", e);
             } catch (IllegalStateException e) {
                 Log.e(TAG, "Failed to start camera preview.", e);
-            }*/
+            }
         }
 
         @Override
@@ -201,25 +205,37 @@ class Camera2 extends CameraViewImpl {
 
     private int mDisplayOrientation;
 
-    Camera2(Callback callback, PreviewImpl preview, Context context) {
-        super(callback, preview);
+    /*Dummy Surfaces*/
+    private SurfaceTexture mDummyPreview = new SurfaceTexture(1);
+    private Surface mDummySurface = new Surface(mDummyPreview);
+
+    Camera2(Callback callback, /*PreviewImpl preview,*/ Context context) {
+
+
+        super(callback/*, preview*/);
         mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-        mPreview.setCallback(new PreviewImpl.Callback() {
+    /*    mPreview.setCallback(new PreviewImpl.Callback() {
             @Override
             public void onSurfaceChanged() {
                 startCaptureSession();
             }
-        });
+        });*/
     }
 
     @Override
     boolean start() {
+        Log.d("Camera2", "entered Start");
+
         if (!chooseCameraIdByFacing()) {
+            Log.d("Camera2", "This is return fals");
             return false;
         }
         collectCameraInfo();
+        Log.d("Camera2", "Collected Camera Info");
         prepareImageReader();
+        Log.d("Camera2", "PreparedImageReader");
         startOpeningCamera();
+        Log.d("Camera2", "Started Camera2");
         return true;
     }
 
@@ -246,11 +262,16 @@ class Camera2 extends CameraViewImpl {
 
     @Override
     void setFacing(int facing) {
+        Log.d("Camera", "setfacing() called");
         if (mFacing == facing) {
+            Log.d("Camera", "mFacing === facing");
             return;
         }
+
         mFacing = facing;
         if (isCameraOpened()) {
+            Log.d("Camera", "Camera is Opened");
+
             stop();
             start();
         }
@@ -276,6 +297,7 @@ class Camera2 extends CameraViewImpl {
         mAspectRatio = ratio;
         prepareImageReader();
         if (mCaptureSession != null) {
+            Log.d("Camera2", "close and start the capture session");
             mCaptureSession.close();
             mCaptureSession = null;
             startCaptureSession();
@@ -291,12 +313,16 @@ class Camera2 extends CameraViewImpl {
     @Override
     void setAutoFocus(boolean autoFocus) {
         if (mAutoFocus == autoFocus) {
+            Log.d("camera2", "mAutoFocus == autofocus");
             return;
         }
         mAutoFocus = autoFocus;
         if (mPreviewRequestBuilder != null) {
+            Log.d("camera2", "updateAutoFocus");
             updateAutoFocus();
             if (mCaptureSession != null) {
+                Log.d("camera2", "mCaptureSession == null");
+
                 try {
                     mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(),
                             mCaptureCallback, null);
@@ -315,6 +341,7 @@ class Camera2 extends CameraViewImpl {
     @Override
     void setFlash(int flash) {
         if (mFlash == flash) {
+
             return;
         }
         int saved = mFlash;
@@ -342,16 +369,21 @@ class Camera2 extends CameraViewImpl {
     @Override
     void takePicture() {
         if (mAutoFocus) {
+            Log.d("Camera2", "takePicture()");
             lockFocus();
         } else {
             captureStillPicture();
+            Log.d("Camera2", "captureStillPicture()");
+
         }
     }
 
     @Override
     void setDisplayOrientation(int displayOrientation) {
         mDisplayOrientation = displayOrientation;
+/*
         mPreview.setDisplayOrientation(mDisplayOrientation);
+*/
     }
 
     /**
@@ -420,11 +452,12 @@ class Camera2 extends CameraViewImpl {
     private void collectCameraInfo() {
         StreamConfigurationMap map = mCameraCharacteristics.get(
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        Log.d("Camera2", "Collecting!");
         if (map == null) {
             throw new IllegalStateException("Failed to get configuration map: " + mCameraId);
         }
         mPreviewSizes.clear();
-        for (android.util.Size size : map.getOutputSizes(mPreview.getOutputClass())) {
+        for (android.util.Size size : map.getOutputSizes(SurfaceTexture.class)) {
             int width = size.getWidth();
             int height = size.getHeight();
             if (width <= MAX_PREVIEW_WIDTH && height <= MAX_PREVIEW_HEIGHT) {
@@ -467,6 +500,7 @@ class Camera2 extends CameraViewImpl {
     private void startOpeningCamera() {
         try {
             mCameraManager.openCamera(mCameraId, mCameraDeviceCallback, null);
+            Log.d("Camera", "Start Opening Camera");
         } catch (CameraAccessException e) {
             throw new RuntimeException("Failed to open camera: " + mCameraId, e);
         }
@@ -478,18 +512,19 @@ class Camera2 extends CameraViewImpl {
      * <p>The result will be continuously processed in {@link #mSessionCallback}.</p>
      */
     void startCaptureSession() {
-        if (!isCameraOpened() || !mPreview.isReady() || mImageReader == null) {
+        Log.d("Camera2", "Start Capture Session");
+        if (!isCameraOpened() /*|| !mPreview.isReady() */|| mImageReader == null) {
             return;
         }
-        Size previewSize = chooseOptimalSize();
-        mPreview.setBufferSize(previewSize.getWidth(), previewSize.getHeight());
-        Surface surface = mPreview.getSurface();
+       /* Size previewSize = chooseOptimalSize();*/
+       /* mPreview.setBufferSize(previewSize.getWidth(), previewSize.getHeight());
+        Surface surface = mPreview.getSurface();*/
         try {
             mPreviewRequestBuilder = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-            mPreviewRequestBuilder.addTarget(mImageReader.getSurface());
+            mPreviewRequestBuilder.addTarget(mDummySurface/*, mImageReader.getSurface()*/);
 
             /*TODO: MOST LIKELY NEED TO UPDATE SESSIONCALLBACKS HERE*/
-            mCamera.createCaptureSession(Arrays.asList(surface, mImageReader.getSurface()),
+            mCamera.createCaptureSession(Arrays.asList(/*surface,*/mDummySurface, mImageReader.getSurface()),
                     mSessionCallback, null);
 
         } catch (CameraAccessException e) {
@@ -502,7 +537,7 @@ class Camera2 extends CameraViewImpl {
      *
      * @return The picked size for camera preview.
      */
-    private Size chooseOptimalSize() {
+   /* private Size chooseOptimalSize() {
         int surfaceLonger, surfaceShorter;
         final int surfaceWidth = mPreview.getWidth();
         final int surfaceHeight = mPreview.getHeight();
@@ -523,12 +558,13 @@ class Camera2 extends CameraViewImpl {
         }
         // If no size is big enough, pick the largest one.
         return candidates.last();
-    }
+    }*/
 
     /**
      * Updates the internal state of auto-focus to {@link #mAutoFocus}.
      */
     void updateAutoFocus() {
+        Log.d("Camera2", Boolean.toString(mAutoFocus));
         if (mAutoFocus) {
             int[] modes = mCameraCharacteristics.get(
                     CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
@@ -552,6 +588,8 @@ class Camera2 extends CameraViewImpl {
      * Updates the internal state of flash to {@link #mFlash}.
      */
     void updateFlash() {
+        Log.d("Camera2", "Update Flash");
+        Log.d("Camera2", Integer.toString(mFlash));
         switch (mFlash) {
             case Constants.FLASH_OFF:
                 mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
@@ -687,11 +725,20 @@ class Camera2 extends CameraViewImpl {
     private static abstract class PictureCaptureCallback
             extends CameraCaptureSession.CaptureCallback {
 
+
+        /**
+         * Camera state: Showing camera preview.
+         */
         static final int STATE_PREVIEW = 0;
+
         static final int STATE_LOCKING = 1;
+
         static final int STATE_LOCKED = 2;
+
         static final int STATE_PRECAPTURE = 3;
+
         static final int STATE_WAITING = 4;
+
         static final int STATE_CAPTURING = 5;
 
         private int mState;
@@ -706,29 +753,36 @@ class Camera2 extends CameraViewImpl {
         @Override
         public void onCaptureProgressed(@NonNull CameraCaptureSession session,
                                         @NonNull CaptureRequest request, @NonNull CaptureResult partialResult) {
+            Log.d("Callback", "PartialResult");
             process(partialResult);
         }
 
         @Override
         public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                        @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+            Log.d("Callback", "OnCaptureCompleted");
+
             process(result);
         }
 
         private void process(@NonNull CaptureResult result) {
             switch (mState) {
                 case STATE_LOCKING: {
+                    Log.d("Camera2Process", "STATE_LOCKING");
                     Integer af = result.get(CaptureResult.CONTROL_AF_STATE);
                     if (af == null) {
+                        Log.d("Camera2Process", "OH MAN AF== NULL");
                         break;
                     }
                     if (af == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED ||
                             af == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
                         Integer ae = result.get(CaptureResult.CONTROL_AE_STATE);
                         if (ae == null || ae == CaptureResult.CONTROL_AE_STATE_CONVERGED) {
+                            Log.d("Camera2Process", "CAPTURERESULT.CONTROL_AE_STATE_CONVERGED");
                             setState(STATE_CAPTURING);
                             onReady();
                         } else {
+                            Log.d("Camera2Process", "PRECAPTURE REQUIRED");
                             setState(STATE_LOCKED);
                             onPrecaptureRequired();
                         }

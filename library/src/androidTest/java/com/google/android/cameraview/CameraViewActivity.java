@@ -18,6 +18,7 @@ package com.google.android.cameraview;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.cameraview.test.R;
 
@@ -35,6 +36,7 @@ public class CameraViewActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d("CameraViewActivity", "onResume()");
         mCameraView.start();
     }
 

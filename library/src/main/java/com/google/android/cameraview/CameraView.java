@@ -97,32 +97,47 @@ public class CameraView extends FrameLayout {
         }
         // Internal setup
         /*TODO: Determine where this preview is coming from. Do we need it?*/
+/*
         final PreviewImpl preview = createPreviewImpl(context);
+*/
         mCallbacks = new CallbackBridge();
+
         if (Build.VERSION.SDK_INT < 21) {
+/*
             mImpl = new Camera1(mCallbacks, preview);
+*/
         } else if (Build.VERSION.SDK_INT < 23) {
             Log.d("TAG", "SDK 23");
             //TODO: Determine if this is for the view, camera2 OR BOTH
-            mImpl = new Camera2(mCallbacks, preview, context);
+            mImpl = new Camera2(mCallbacks, /*preview,*/ context);
         } else {
             Log.d("TAG", "CAMERA2API23");
-            mImpl = new Camera2Api23(mCallbacks, preview, context);
+            mImpl = new Camera2Api23(mCallbacks,/* preview,*/ context);
         }
-        // Attributes
+/*        // Attributes
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CameraView, defStyleAttr,
                 R.style.Widget_CameraView);
-        mAdjustViewBounds = a.getBoolean(R.styleable.CameraView_android_adjustViewBounds, false);
-        setFacing(a.getInt(R.styleable.CameraView_facing, FACING_BACK));
-        String aspectRatio = a.getString(R.styleable.CameraView_aspectRatio);
+        Log.d("MADJUSTVIEWBOUNDS", String.valueOf(a.getBoolean(R.styleable.CameraView_android_adjustViewBounds, false)));
+        Log.d("SETFACING", Integer.toString(a.getInt(R.styleable.CameraView_facing, FACING_BACK)));
+        Log.d("ASPECTRATIO", a.getString(R.styleable.CameraView_aspectRatio));
+        Log.d("AUTOFOCUS", Boolean.toString(a.getBoolean(R.styleable.CameraView_autoFocus, true)));
+        Log.d("SETFLASH", Integer.toString(a.getInt(R.styleable.CameraView_flash, Constants.FLASH_AUTO)));*/
+
+
+        mAdjustViewBounds = true; /*a.getBoolean(R.styleable.CameraView_android_adjustViewBounds, false);*/
+        /*TODO: setFacing is what starts the camera*/
+        setFacing(0/*a.getInt(R.styleable.CameraView_facing, FACING_BACK)*/);
+        String aspectRatio = "4:3";/*a.getString(R.styleable.CameraView_aspectRatio)*/;
         if (aspectRatio != null) {
             setAspectRatio(AspectRatio.parse(aspectRatio));
         } else {
             setAspectRatio(Constants.DEFAULT_ASPECT_RATIO);
         }
-        setAutoFocus(a.getBoolean(R.styleable.CameraView_autoFocus, true));
-        setFlash(a.getInt(R.styleable.CameraView_flash, Constants.FLASH_AUTO));
-        a.recycle();
+        Log.d("CameraView", "setAutoFocus");
+        setAutoFocus(true/*a.getBoolean(R.styleable.CameraView_autoFocus, true)*/);
+        Log.d("CameraView", "setFlash");
+        setFlash(3/*a.getInt(R.styleable.CameraView_flash, Constants.FLASH_AUTO)*/);
+       /* a.recycle();*/
         // Display orientation detector
         mDisplayOrientationDetector = new DisplayOrientationDetector(context) {
             @Override
@@ -138,6 +153,8 @@ public class CameraView extends FrameLayout {
         if (Build.VERSION.SDK_INT < 14) {
             preview = new SurfaceViewPreview(context, this);
         } else {
+
+            /*I will be using a TextureView*/
             preview = new TextureViewPreview(context, this);
         }
         return preview;
@@ -206,7 +223,7 @@ public class CameraView extends FrameLayout {
             ratio = ratio.inverse();
         }
         assert ratio != null;
-        if (height < width * ratio.getY() / ratio.getX()) {
+/*        if (height < width * ratio.getY() / ratio.getX()) {
             mImpl.getView().measure(
                     MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(width * ratio.getY() / ratio.getX(),
@@ -216,7 +233,7 @@ public class CameraView extends FrameLayout {
                     MeasureSpec.makeMeasureSpec(height * ratio.getX() / ratio.getY(),
                             MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-        }
+        }*/
     }
 
     @Override
@@ -248,12 +265,17 @@ public class CameraView extends FrameLayout {
      * {@link Activity#onResume()}.
      */
     public void start() {
+
+        System.out.println(mImpl);
         if (!mImpl.start()) {
             //store the state ,and restore this state after fall back o Camera1
             Parcelable state=onSaveInstanceState();
             // Camera2 uses legacy hardware layer; fall back to Camera1
+/*
             mImpl = new Camera1(mCallbacks, createPreviewImpl(getContext()));
+*/
             onRestoreInstanceState(state);
+            System.out.println(mImpl);
             mImpl.start();
         }
     }

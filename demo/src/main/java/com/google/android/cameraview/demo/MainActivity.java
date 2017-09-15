@@ -110,11 +110,9 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         mCameraView = (CameraView) findViewById(R.id.camera);
         if (mCameraView != null) {
+            Log.d("MainActivity", "Adding Callbacks");
             mCameraView.addCallback(mCallback);
         }
-
-        Intent i = ExampleService.newIntent(this);
-        this.startService(i);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.take_picture);
         if (fab != null) {
@@ -133,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
+            Log.d("MainActivity", "onResume Permission Granted start Camera");
             mCameraView.start();
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.CAMERA)) {
