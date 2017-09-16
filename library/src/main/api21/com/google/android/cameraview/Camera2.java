@@ -289,12 +289,16 @@ class Camera2 extends CameraViewImpl {
 
     @Override
     boolean setAspectRatio(AspectRatio ratio) {
+        Log.d("Camera2", "setAspectRatio");
         if (ratio == null || ratio.equals(mAspectRatio) ||
                 !mPreviewSizes.ratios().contains(ratio)) {
+            Log.d("Camera2", Integer.toString(mAspectRatio.getX()) + " " + Integer.toString(mAspectRatio.getY()));
+            Log.d("Camera2", "in the if statement");
             // TODO: Better error handling
             return false;
         }
         mAspectRatio = ratio;
+        Log.d("Camera2", Integer.toString(mAspectRatio.getX()) + " " + Integer.toString(mAspectRatio.getY()));
         prepareImageReader();
         if (mCaptureSession != null) {
             Log.d("Camera2", "close and start the capture session");

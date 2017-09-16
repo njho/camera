@@ -37,7 +37,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class CameraView extends FrameLayout {
+public class CameraView /*extends FrameLayout*/ {
 
     /** The camera device faces the opposite direction as the device's screen. */
     public static final int FACING_BACK = Constants.FACING_BACK;
@@ -89,12 +89,12 @@ public class CameraView extends FrameLayout {
 
     @SuppressWarnings("WrongConstant")
     public CameraView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        if (isInEditMode()){
+/*        super(context, attrs, defStyleAttr);*/
+ /*       if (isInEditMode()){
             mCallbacks = null;
             mDisplayOrientationDetector = null;
             return;
-        }
+        }*/
         // Internal setup
         /*TODO: Determine where this preview is coming from. Do we need it?*/
 /*
@@ -147,6 +147,7 @@ public class CameraView extends FrameLayout {
         };
     }
 
+/*
     @NonNull
     private PreviewImpl createPreviewImpl(Context context) {
         PreviewImpl preview;
@@ -154,20 +155,24 @@ public class CameraView extends FrameLayout {
             preview = new SurfaceViewPreview(context, this);
         } else {
 
-            /*I will be using a TextureView*/
+            */
+/*I will be using a TextureView*//*
+
             preview = new TextureViewPreview(context, this);
         }
         return preview;
     }
+*/
 
-    @Override
+/*    @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         if (!isInEditMode()) {
             mDisplayOrientationDetector.enable(ViewCompat.getDisplay(this));
         }
-    }
+    }*/
 
+/*
     @Override
     protected void onDetachedFromWindow() {
         if (!isInEditMode()) {
@@ -175,8 +180,9 @@ public class CameraView extends FrameLayout {
         }
         super.onDetachedFromWindow();
     }
+*/
 
-    @Override
+    /*@Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (isInEditMode()){
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -223,7 +229,7 @@ public class CameraView extends FrameLayout {
             ratio = ratio.inverse();
         }
         assert ratio != null;
-/*        if (height < width * ratio.getY() / ratio.getX()) {
+*//*        if (height < width * ratio.getY() / ratio.getX()) {
             mImpl.getView().measure(
                     MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(width * ratio.getY() / ratio.getX(),
@@ -233,10 +239,10 @@ public class CameraView extends FrameLayout {
                     MeasureSpec.makeMeasureSpec(height * ratio.getX() / ratio.getY(),
                             MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-        }*/
-    }
+        }*//*
+    }*/
 
-    @Override
+  /*  @Override
     protected Parcelable onSaveInstanceState() {
         SavedState state = new SavedState(super.onSaveInstanceState());
         state.facing = getFacing();
@@ -258,7 +264,7 @@ public class CameraView extends FrameLayout {
         setAspectRatio(ss.ratio);
         setAutoFocus(ss.autoFocus);
         setFlash(ss.flash);
-    }
+    }*/
 
     /**
      * Open a camera device and start showing camera preview. This is typically called from
@@ -266,16 +272,19 @@ public class CameraView extends FrameLayout {
      */
     public void start() {
 
-        System.out.println(mImpl);
+        Log.d("CameraView", "Start() called");
         if (!mImpl.start()) {
             //store the state ,and restore this state after fall back o Camera1
+/*
             Parcelable state=onSaveInstanceState();
+*/
             // Camera2 uses legacy hardware layer; fall back to Camera1
 /*
             mImpl = new Camera1(mCallbacks, createPreviewImpl(getContext()));
 */
+/*
             onRestoreInstanceState(state);
-            System.out.println(mImpl);
+*/
             mImpl.start();
         }
     }
@@ -323,7 +332,9 @@ public class CameraView extends FrameLayout {
     public void setAdjustViewBounds(boolean adjustViewBounds) {
         if (mAdjustViewBounds != adjustViewBounds) {
             mAdjustViewBounds = adjustViewBounds;
+/*
             requestLayout();
+*/
         }
     }
 
@@ -371,7 +382,9 @@ public class CameraView extends FrameLayout {
      */
     public void setAspectRatio(@NonNull AspectRatio ratio) {
         if (mImpl.setAspectRatio(ratio)) {
+/*
             requestLayout();
+*/
         }
     }
 
@@ -455,7 +468,9 @@ public class CameraView extends FrameLayout {
         public void onCameraOpened() {
             if (mRequestLayoutOnOpen) {
                 mRequestLayoutOnOpen = false;
+/*
                 requestLayout();
+*/
             }
             for (Callback callback : mCallbacks) {
                 callback.onCameraOpened(CameraView.this);
@@ -480,7 +495,7 @@ public class CameraView extends FrameLayout {
             mRequestLayoutOnOpen = true;
         }
     }
-
+/*
     protected static class SavedState extends BaseSavedState {
 
         @Facing
@@ -506,14 +521,14 @@ public class CameraView extends FrameLayout {
             super(superState);
         }
 
-        @Override
+       *//* @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeInt(facing);
             out.writeParcelable(ratio, 0);
             out.writeByte((byte) (autoFocus ? 1 : 0));
             out.writeInt(flash);
-        }
+        }*//*
 
         public static final Parcelable.Creator<SavedState> CREATOR
                 = ParcelableCompat.newCreator(new ParcelableCompatCreatorCallbacks<SavedState>() {
@@ -530,7 +545,7 @@ public class CameraView extends FrameLayout {
 
         });
 
-    }
+    }*/
 
     /**
      * Callback for monitoring events about {@link CameraView}.
