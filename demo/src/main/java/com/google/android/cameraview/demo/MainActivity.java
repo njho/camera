@@ -108,11 +108,16 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+/*
         mCameraView = new CameraView(getApplicationContext());
-        if (mCameraView != null) {
+*/
+    /*    if (mCameraView != null) {
             Log.d("MainActivity", "Adding Callbacks");
             mCameraView.addCallback(mCallback);
         }
+*/
+        Intent i = ExampleService.newIntent(this);
+        this.startService(i);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.take_picture);
         if (fab != null) {
@@ -131,8 +136,12 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
+/*
             Log.d("MainActivity", "onResume Permission Granted start Camera");
+*/
+/*
             mCameraView.start();
+*/
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.CAMERA)) {
             ConfirmationDialogFragment
@@ -149,21 +158,26 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onPause() {
+/*
         mCameraView.stop();
+*/
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mBackgroundHandler != null) {
+/*        if (mBackgroundHandler != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                 mBackgroundHandler.getLooper().quitSafely();
             } else {
                 mBackgroundHandler.getLooper().quit();
             }
             mBackgroundHandler = null;
-        }
+        }*/
+
+        Intent i = ExampleService.newIntent(this);
+        this.stopService(i);
     }
 
     @Override
@@ -229,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+/*
     private Handler getBackgroundHandler() {
         if (mBackgroundHandler == null) {
             HandlerThread thread = new HandlerThread("background");
@@ -237,8 +252,9 @@ public class MainActivity extends AppCompatActivity implements
         }
         return mBackgroundHandler;
     }
+*/
 
-    private CameraView.Callback mCallback
+    /*private CameraView.Callback mCallback
             = new CameraView.Callback() {
 
         @Override
@@ -281,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements
             });
         }
 
-    };
+    };*/
 
     public static class ConfirmationDialogFragment extends DialogFragment {
 

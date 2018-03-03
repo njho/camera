@@ -137,6 +137,8 @@ class Camera2 extends CameraViewImpl {
 
     };
 
+    private Counter mCounter = new Counter();
+
     PictureCaptureCallback mCaptureCallback = new PictureCaptureCallback() {
 
         @Override
@@ -151,6 +153,20 @@ class Camera2 extends CameraViewImpl {
             } catch (CameraAccessException e) {
                 Log.e(TAG, "Failed to run precapture sequence.", e);
             }
+        }
+
+        public void onCaptureCompleted(@NonNull CameraCaptureSession session,
+                                       @NonNull CaptureRequest request,
+                                       @NonNull TotalCaptureResult result) {
+            Log.d("Callback", "PartialResult");
+            mCounter.updateCounter();
+            Log.d("Camera2", "Camera Incremented: " + Integer.toString(mCounter.getCounter()));
+            if (mCounter.getCounter() == 30) {
+                takePicture();
+            }
+
+            process(result);
+
         }
 
         @Override
@@ -517,7 +533,7 @@ class Camera2 extends CameraViewImpl {
      */
     void startCaptureSession() {
         Log.d("Camera2", "Start Capture Session");
-        if (!isCameraOpened() /*|| !mPreview.isReady() */|| mImageReader == null) {
+        if (!isCameraOpened() /*|| !mPreview.isReady() */ || mImageReader == null) {
             return;
         }
        /* Size previewSize = chooseOptimalSize();*/
@@ -642,6 +658,8 @@ class Camera2 extends CameraViewImpl {
         }
     }
 
+
+
     /**
      * Captures a still picture.
      */
@@ -707,7 +725,7 @@ class Camera2 extends CameraViewImpl {
      * capturing a still picture.
      */
     void unlockFocus() {
-        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
+/*        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
                 CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
         try {
             mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback, null);
@@ -720,7 +738,7 @@ class Camera2 extends CameraViewImpl {
             mCaptureCallback.setState(PictureCaptureCallback.STATE_PREVIEW);
         } catch (CameraAccessException e) {
             Log.e(TAG, "Failed to restart camera preview.", e);
-        }
+        }*/
     }
 
     /**
@@ -757,6 +775,7 @@ class Camera2 extends CameraViewImpl {
         @Override
         public void onCaptureProgressed(@NonNull CameraCaptureSession session,
                                         @NonNull CaptureRequest request, @NonNull CaptureResult partialResult) {
+
             Log.d("Callback", "PartialResult");
             process(partialResult);
         }
@@ -769,7 +788,10 @@ class Camera2 extends CameraViewImpl {
             process(result);
         }
 
-        private void process(@NonNull CaptureResult result) {
+        public void process(@NonNull CaptureResult result) {
+            Log.d("Camera2", "process");
+
+
             switch (mState) {
                 case STATE_LOCKING: {
                     Log.d("Camera2Process", "STATE_LOCKING");
