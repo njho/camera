@@ -659,7 +659,6 @@ class Camera2 extends CameraViewImpl {
     }
 
 
-
     /**
      * Captures a still picture.
      */

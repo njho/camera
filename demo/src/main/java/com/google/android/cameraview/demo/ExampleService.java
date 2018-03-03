@@ -100,6 +100,7 @@ public class ExampleService extends IntentService {
                 public void run() {
                     File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),
                             "picture.jpg");
+
                     OutputStream os = null;
                     try {
                         os = new FileOutputStream(file);
